@@ -1,0 +1,4 @@
+default-color: gold
+default-prefix:
+  text: [PG]
+  color: light_purple

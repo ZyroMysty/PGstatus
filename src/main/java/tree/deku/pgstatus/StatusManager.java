@@ -16,8 +16,17 @@ public class StatusManager {
     private final Map<UUID, String> statusByPlayer = new HashMap<>();
     private final Map<UUID, TextColor> colorByPlayer = new HashMap<>();
 
+    //default colors/texts
+    private final TextColor defaultColor;
+    private final String prefixText;
+    private final TextColor prefixColor;
+
+
     public StatusManager(PGstatus plugin) {
         this.plugin = plugin;
+        this.defaultColor = loadDefaultColor();
+        this.prefixText = plugin.getConfig().getString("default-prefix.text", "[PG]");
+        this.prefixColor = loadPrefixColor();
         loadFromConfig();
     }
 
@@ -49,18 +58,52 @@ public class StatusManager {
             }
         }
     }
+    private TextColor loadDefaultColor() {
+        String configured = plugin.getConfig().getString("default-color", "gold");
+
+        TextColor named = NamedTextColor.NAMES.value(configured.toLowerCase(Locale.ROOT));
+        if (named != null) {
+            return named;
+        }
+
+        if (!configured.startsWith("#")) {
+            configured = "#" + configured;
+        }
+
+        try {
+            return TextColor.fromHexString(configured);
+        } catch (IllegalArgumentException ex) {
+            return NamedTextColor.GOLD;
+        }
+    }
+
+    private TextColor loadPrefixColor() {
+        String configured = plugin.getConfig().getString("default-prefix.color", "light_purple");
+
+        TextColor named = NamedTextColor.NAMES.value(configured.toLowerCase(Locale.ROOT));
+        if (named != null) return named;
+
+        if (!configured.startsWith("#"))
+            configured = "#" + configured;
+
+        try {
+            return TextColor.fromHexString(configured);
+        } catch (IllegalArgumentException ex) {
+            return NamedTextColor.LIGHT_PURPLE; // fallback
+        }
+    }
 
     public void savePlayerStatus(UUID uuid, String text, TextColor color) {
-        statusByPlayer.put(uuid, text);
-        if (color != null) {
-            colorByPlayer.put(uuid, color);
-        } else {
-            colorByPlayer.remove(uuid);
+        if (color == null) {
+            color = defaultColor;
         }
+
+        statusByPlayer.put(uuid, text);
+        colorByPlayer.put(uuid, color);
 
         String path = "players." + uuid;
         plugin.getConfig().set(path + ".text", text);
-        plugin.getConfig().set(path + ".color", color != null ? color.asHexString() : null);
+        plugin.getConfig().set(path + ".color", color.asHexString());
         plugin.saveConfig();
     }
 
@@ -112,5 +155,13 @@ public class StatusManager {
         List<String> list = new ArrayList<>(set);
         Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
         return list;
+    }
+
+    public String getPrefixText() {
+        return prefixText;
+    }
+
+    public TextColor getPrefixColor() {
+        return prefixColor;
     }
 }

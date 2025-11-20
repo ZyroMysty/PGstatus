@@ -1,5 +1,7 @@
 package tree.deku.pgstatus.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -30,7 +32,11 @@ public class StatusClearCommand implements CommandExecutor {
         statusManager.clearPlayerStatus(player.getUniqueId());
         statusManager.resetPlayerListName(player);
 
-        player.sendMessage("§aDein Status wurde entfernt.");
+        Component msg = Component.text(statusManager.getPrefixText() + " ", statusManager.getPrefixColor())
+                .append(Component.text("Dein Status wurde entfernt.", NamedTextColor.GREEN));
+
+        player.sendMessage(msg);
+
         return true;
     }
 }
