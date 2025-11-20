@@ -1,0 +1,6 @@
+name: PGstatus
+version: '0.1'
+main: tree.deku.pGstatus.PGstatus
+api-version: '1.21'
+prefix: PGstatus
+authors: [ DekuTree ]
