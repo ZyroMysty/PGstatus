@@ -11,6 +11,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import tree.deku.pgstatus.BlacklistManager;
 import tree.deku.pgstatus.PGstatus;
 import tree.deku.pgstatus.StatusManager;
 
@@ -21,10 +22,12 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
 
     private final PGstatus plugin;
     private final StatusManager statusManager;
+    private final BlacklistManager blacklistManager;
 
-    public StatusCommand(PGstatus plugin, StatusManager statusManager) {
+    public StatusCommand(PGstatus plugin, StatusManager statusManager, BlacklistManager blacklistManager) {
         this.plugin = plugin;
         this.statusManager = statusManager;
+        this.blacklistManager = blacklistManager;
     }
 
     @Override
@@ -63,6 +66,10 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
 
         if (text.length() > 16) {
             player.sendMessage("§cDer Status ist zu lang (max. 16 Zeichen).");
+            return true;
+        }
+
+        if(!blacklistManager.handleStatusAttempt(player,text)){
             return true;
         }
 

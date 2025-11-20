@@ -9,6 +9,7 @@ public final class PGstatus extends JavaPlugin {
 
     private static  PGstatus instance;
     private StatusManager statusManager;
+    private BlacklistManager blacklistManager;
 
     @Override
     public void onEnable() {
@@ -16,8 +17,9 @@ public final class PGstatus extends JavaPlugin {
         saveDefaultConfig();
 
         statusManager = new StatusManager(this);
+        blacklistManager = new BlacklistManager(this);
 
-        StatusCommand statusCmd = new StatusCommand(this, statusManager);
+        StatusCommand statusCmd = new StatusCommand(this, statusManager, blacklistManager);
         getCommand("status").setExecutor(statusCmd);
         getCommand("status").setTabCompleter(statusCmd);
 
@@ -33,5 +35,9 @@ public final class PGstatus extends JavaPlugin {
 
     public StatusManager getStatusManager() {
         return statusManager;
+    }
+
+    public BlacklistManager getBlacklistManager(){
+        return blacklistManager;
     }
 }
