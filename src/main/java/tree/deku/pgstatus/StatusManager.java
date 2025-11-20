@@ -13,8 +13,9 @@ import java.util.*;
 public class StatusManager {
 
     private final PGstatus plugin;
+
     private final Map<UUID, String> statusByPlayer = new HashMap<>();
-    private final Map<UUID, TextColor> colorByPlayer = new HashMap<>();
+    private final Map<String, TextColor> colorByStatus = new HashMap<>();
 
     //default colors/texts
     private final TextColor defaultColor;
@@ -34,32 +35,32 @@ public class StatusManager {
 
     private void loadFromConfig() {
         statusByPlayer.clear();
-        colorByPlayer.clear();
+        colorByStatus.clear();
+
+        ConfigurationSection statusSection = plugin.getConfig().getConfigurationSection("statuses");
+        if (statusSection != null) {
+            for (String key : statusSection.getKeys(false)) {
+                String colorHex = statusSection.getString(key);
+                TextColor color = parseColorFromConfig(colorHex, defaultColor);
+                colorByStatus.put(key, color);
+            }
+        }
 
         ConfigurationSection playersSection = plugin.getConfig().getConfigurationSection("players");
-        if (playersSection == null) return;
-
-        for (String key : playersSection.getKeys(false)) {
-            try {
-                UUID uuid = UUID.fromString(key);
-                String text = playersSection.getString(key + ".text");
-                String colorHex = playersSection.getString(key + ".color");
-
-                if (text != null && !text.isEmpty()) {
-                    statusByPlayer.put(uuid, text);
-                }
-                if (colorHex != null && !colorHex.isEmpty()) {
-                    try {
-                        TextColor color = TextColor.fromHexString(colorHex);
-                        colorByPlayer.put(uuid, color);
-                    } catch (IllegalArgumentException ignored) {
+        if (playersSection != null) {
+            for (String key : playersSection.getKeys(false)) {
+                try {
+                    UUID uuid = UUID.fromString(key);
+                    String text = playersSection.getString(key + ".text");
+                    if (text != null && !text.isEmpty()) {
+                        statusByPlayer.put(uuid, text);
                     }
+                } catch (IllegalArgumentException ignored) {
                 }
-            } catch (IllegalArgumentException ignored) {
-
             }
         }
     }
+
 
     private TextColor parseColorFromConfig(String value, TextColor fallback) {
         if (value == null || value.isEmpty()) {
@@ -86,57 +87,95 @@ public class StatusManager {
         }
     }
 
-
-    public void savePlayerStatus(UUID uuid, String text, TextColor color) {
-        if (color == null) {
-            color = defaultColor;
-        }
-
-        statusByPlayer.put(uuid, text);
-        colorByPlayer.put(uuid, color);
-
-        String path = "players." + uuid;
-        plugin.getConfig().set(path + ".text", text);
-        plugin.getConfig().set(path + ".color", color.asHexString());
-        plugin.saveConfig();
+    public TextColor getColorForStatus(String statusText) {
+        TextColor c = colorByStatus.get(statusText);
+        return c != null ? c : defaultColor;
     }
 
+
+    public void savePlayerStatus(UUID uuid, String text, TextColor newColor) {
+
+        statusByPlayer.put(uuid, text);
+
+        // wenn neue Farbe angegeben -> globale Farbe für diesen Status setzen
+        if (newColor != null) {
+            colorByStatus.put(text, newColor);
+        } else if (!colorByStatus.containsKey(text)) {
+            // Status noch nie gesehen -> Default-Farbe nutzen
+            colorByStatus.put(text, defaultColor);
+        }
+
+        saveAllToConfig();
+
+        // Alle Online-Spieler, die diesen Status haben, updaten
+        reapplyStatusForText(text);
+    }
+
+
     public void clearPlayerStatus(UUID uuid) {
-        statusByPlayer.remove(uuid);
-        colorByPlayer.remove(uuid);
+
+        String removedStatus = statusByPlayer.remove(uuid);
 
         plugin.getConfig().set("players." + uuid, null);
         plugin.saveConfig();
+
+        if (removedStatus != null && !statusByPlayer.containsValue(removedStatus)) {
+            colorByStatus.remove(removedStatus);
+            plugin.getConfig().set("statuses." + removedStatus, null);
+            plugin.saveConfig();
+        }
     }
 
-    public String getStatus(UUID uuid) {
-        return statusByPlayer.get(uuid);
+
+    private void saveAllToConfig() {
+        // erstmal alles bereinigen
+        plugin.getConfig().set("statuses", null);
+        plugin.getConfig().set("players", null);
+
+        // statuses speichern
+        for (Map.Entry<String, TextColor> entry : colorByStatus.entrySet()) {
+            plugin.getConfig().set("statuses." + entry.getKey(), entry.getValue().asHexString());
+        }
+
+        // players speichern
+        for (Map.Entry<UUID, String> entry : statusByPlayer.entrySet()) {
+            String path = "players." + entry.getKey();
+            plugin.getConfig().set(path + ".text", entry.getValue());
+        }
+
+        plugin.saveConfig();
     }
 
-    public TextColor getColor(UUID uuid) {
-        return colorByPlayer.get(uuid);
+    private void reapplyStatusForText(String text) {
+        for (Player p : plugin.getServer().getOnlinePlayers()) {
+            UUID id = p.getUniqueId();
+            String playerStatus = statusByPlayer.get(id);
+            if (text.equals(playerStatus)) {
+                applyStatus(p);
+            }
+        }
     }
 
     public void applyStatus(Player player) {
-        String status = getStatus(player.getUniqueId());
+        UUID uuid = player.getUniqueId();
+        String status = statusByPlayer.get(uuid);
+
         if (status == null || status.isEmpty()) {
             resetPlayerListName(player);
             return;
         }
 
-        TextColor color = getColor(player.getUniqueId());
-        if (color == null) {
-            color = NamedTextColor.GOLD;
-        }
+        TextColor color = getColorForStatus(status);
 
-        Component prefix = Component.text("[").append(Component.text(status, color).decoration(TextDecoration.BOLD, true)).append(Component.text("] "));
+        Component prefix = Component.text("[")
+                .append(Component.text(status, color).decoration(TextDecoration.BOLD, true))
+                .append(Component.text("] "));
 
         Component name = Component.text(player.getName(), NamedTextColor.WHITE);
 
-        Component full = prefix.append(name);
-
-        player.playerListName(full);
+        player.playerListName(prefix.append(name));
     }
+
 
     public void resetPlayerListName(Player player) {
         player.playerListName(null);
@@ -156,9 +195,4 @@ public class StatusManager {
     public TextColor getPrefixColor() {
         return prefixColor;
     }
-
-    public TextColor getStatusColor(UUID uuid) {
-        return colorByPlayer.get(uuid);
-    }
-
 }

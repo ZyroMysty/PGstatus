@@ -2,3 +2,6 @@ default-color: gold
 default-prefix:
   text: [PG]
   color: light_purple
+blacklist:
+  enabled: true
+  max-strikes: 3
