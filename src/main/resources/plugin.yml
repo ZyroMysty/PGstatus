@@ -1,5 +1,5 @@
 name: PGstatus
-version: '0.4'
+version: '${project.version}'
 main: tree.deku.pgstatus.PGstatus
 api-version: '1.21'
 prefix: PGstatus

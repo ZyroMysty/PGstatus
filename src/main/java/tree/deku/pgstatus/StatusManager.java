@@ -24,9 +24,11 @@ public class StatusManager {
 
     public StatusManager(PGstatus plugin) {
         this.plugin = plugin;
-        this.defaultColor = loadDefaultColor();
+
+        this.defaultColor = parseColorFromConfig(plugin.getConfig().getString("default-color"), NamedTextColor.GOLD);
         this.prefixText = plugin.getConfig().getString("default-prefix.text", "[PG]");
-        this.prefixColor = loadPrefixColor();
+
+        this.prefixColor = parseColorFromConfig(plugin.getConfig().getString("default-prefix.color"), NamedTextColor.LIGHT_PURPLE);
         loadFromConfig();
     }
 
@@ -58,40 +60,32 @@ public class StatusManager {
             }
         }
     }
-    private TextColor loadDefaultColor() {
-        String configured = plugin.getConfig().getString("default-color", "gold");
 
-        TextColor named = NamedTextColor.NAMES.value(configured.toLowerCase(Locale.ROOT));
+    private TextColor parseColorFromConfig(String value, TextColor fallback) {
+        if (value == null || value.isEmpty()) {
+            return fallback;
+        }
+
+        String lower = value.toLowerCase(Locale.ROOT);
+
+        // 1. Named color (z.B. "gold")
+        TextColor named = NamedTextColor.NAMES.value(lower);
         if (named != null) {
             return named;
         }
 
-        if (!configured.startsWith("#")) {
-            configured = "#" + configured;
+        // 2. Hex (#ff0000 oder ff0000)
+        if (!lower.startsWith("#")) {
+            lower = "#" + lower;
         }
 
         try {
-            return TextColor.fromHexString(configured);
+            return TextColor.fromHexString(lower);
         } catch (IllegalArgumentException ex) {
-            return NamedTextColor.GOLD;
+            return fallback;
         }
     }
 
-    private TextColor loadPrefixColor() {
-        String configured = plugin.getConfig().getString("default-prefix.color", "light_purple");
-
-        TextColor named = NamedTextColor.NAMES.value(configured.toLowerCase(Locale.ROOT));
-        if (named != null) return named;
-
-        if (!configured.startsWith("#"))
-            configured = "#" + configured;
-
-        try {
-            return TextColor.fromHexString(configured);
-        } catch (IllegalArgumentException ex) {
-            return NamedTextColor.LIGHT_PURPLE; // fallback
-        }
-    }
 
     public void savePlayerStatus(UUID uuid, String text, TextColor color) {
         if (color == null) {
@@ -135,9 +129,7 @@ public class StatusManager {
             color = NamedTextColor.GOLD;
         }
 
-        Component prefix = Component.text("[")
-                .append(Component.text(status, color).decoration(TextDecoration.BOLD, true))
-                .append(Component.text("] "));
+        Component prefix = Component.text("[").append(Component.text(status, color).decoration(TextDecoration.BOLD, true)).append(Component.text("] "));
 
         Component name = Component.text(player.getName(), NamedTextColor.WHITE);
 
@@ -164,4 +156,9 @@ public class StatusManager {
     public TextColor getPrefixColor() {
         return prefixColor;
     }
+
+    public TextColor getStatusColor(UUID uuid) {
+        return colorByPlayer.get(uuid);
+    }
+
 }

@@ -68,11 +68,12 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
 
         statusManager.savePlayerStatus(player.getUniqueId(), text, color);
         statusManager.applyStatus(player);
+        TextColor effectiveColor = statusManager.getStatusColor(player.getUniqueId());
 
         Component msg = Component.text(statusManager.getPrefixText() + " ", statusManager.getPrefixColor())
-                .append(Component.text("Status gesetzt auf ", NamedTextColor.GREEN))
+                .append(Component.text("Status gesetzt auf "))
                 .append(Component.text("[", NamedTextColor.GRAY))
-                .append(Component.text(text, color))
+                .append(Component.text(text, effectiveColor))
                 .append(Component.text("]", NamedTextColor.GRAY));
 
         player.sendMessage(msg);

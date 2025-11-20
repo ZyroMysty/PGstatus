@@ -33,7 +33,7 @@ public class StatusClearCommand implements CommandExecutor {
         statusManager.resetPlayerListName(player);
 
         Component msg = Component.text(statusManager.getPrefixText() + " ", statusManager.getPrefixColor())
-                .append(Component.text("Dein Status wurde entfernt.", NamedTextColor.GREEN));
+                .append(Component.text("Dein Status wurde entfernt."));
 
         player.sendMessage(msg);
 
