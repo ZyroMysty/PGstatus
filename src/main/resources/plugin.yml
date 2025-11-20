@@ -1,6 +1,15 @@
 name: PGstatus
-version: '0.1'
-main: tree.deku.pGstatus.PGstatus
+version: '0.2'
+main: tree.deku.pgstatus.PGstatus
 api-version: '1.21'
 prefix: PGstatus
 authors: [ DekuTree ]
+commands:
+  status:
+    description: Set your tab status
+    usage: /status <text> [color]
+  statusclear:
+    description: Clear your tab status
+    usage: /statusclear
+    aliases:
+      - sc
