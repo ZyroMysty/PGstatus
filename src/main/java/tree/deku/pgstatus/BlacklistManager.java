@@ -175,4 +175,39 @@ public class BlacklistManager {
     public int getStrikeCount(UUID uuid) {
         return strikes.getOrDefault(uuid, 0);
     }
+
+
+    public void saveWords(){
+        blacklistConfig.set("words", new ArrayList<>(blacklistWords));
+        try{
+            blacklistConfig.save(blacklistFile);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public boolean addWord(String word){
+        String w = word.toLowerCase(Locale.ROOT);
+
+        if(blacklistWords.contains(w))return false;
+
+        blacklistWords.add(w);
+        saveWords();
+        return true;
+    }
+
+    public boolean removeWord(String word){
+        String w = word.toLowerCase(Locale.ROOT);
+
+        if(!blacklistWords.contains(w)) return false;
+
+        blacklistWords.remove(w);
+        saveWords();
+        return true;
+    }
+
+    public Set<String> getWords(){
+        return Collections.unmodifiableSet(blacklistWords);
+    }
+
 }
