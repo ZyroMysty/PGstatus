@@ -1,10 +1,7 @@
 package tree.deku.pgstatus;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import tree.deku.pgstatus.commands.CheckStrikesCommand;
-import tree.deku.pgstatus.commands.RemovesStrikesCommand;
-import tree.deku.pgstatus.commands.StatusClearCommand;
-import tree.deku.pgstatus.commands.StatusCommand;
+import tree.deku.pgstatus.commands.*;
 import tree.deku.pgstatus.listeners.StatusListener;
 
 public final class PGstatus extends JavaPlugin {
@@ -32,6 +29,10 @@ public final class PGstatus extends JavaPlugin {
         CheckStrikesCommand checkCmd = new CheckStrikesCommand(blacklistManager);
         getCommand("checkstrikes").setExecutor(checkCmd);
         getCommand("checkstrikes").setTabCompleter(checkCmd);
+
+        BlacklistCommand blacklistCmd = new BlacklistCommand(blacklistManager);
+        getCommand("blacklist").setExecutor(blacklistCmd);
+        getCommand("blacklist").setTabCompleter(blacklistCmd);
 
         getCommand("statusclear").setExecutor(new StatusClearCommand(statusManager));
 
