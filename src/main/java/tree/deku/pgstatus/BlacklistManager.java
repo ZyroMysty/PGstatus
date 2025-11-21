@@ -210,4 +210,22 @@ public class BlacklistManager {
         return Collections.unmodifiableSet(blacklistWords);
     }
 
+    public boolean reload(){
+        try{
+            blacklistConfig = YamlConfiguration.loadConfiguration(blacklistFile);
+
+            List<String> words = blacklistConfig.getStringList("words");
+            blacklistWords.clear();
+            blacklistWords.addAll(
+                    words.stream()
+                            .filter(Objects::nonNull)
+                            .map(String::toLowerCase)
+                            .toList()
+            );
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

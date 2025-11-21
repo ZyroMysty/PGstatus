@@ -25,4 +25,4 @@ commands:
       - cs
   blacklist:
     description: Verwalte die Blacklist
-    usage: /blacklist <add|remove|list> [wort]
+    usage: /blacklist <add|remove|list|reload> [wort]

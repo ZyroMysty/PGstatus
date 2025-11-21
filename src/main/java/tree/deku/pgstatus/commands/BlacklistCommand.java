@@ -31,7 +31,7 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         }
 
         if(args.length == 0){
-            commandSender.sendMessage(Component.text("Usage: /blacklist <add|remove|list> [wort]", NamedTextColor.YELLOW));
+            commandSender.sendMessage(Component.text("Usage: /blacklist <add|remove|list|reload> [wort]", NamedTextColor.YELLOW));
             return true;
         }
 
@@ -41,7 +41,8 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
             case "list" -> handleList(commandSender);
             case "add" -> handleAdd(commandSender, args);
             case "remove" -> handleRemove(commandSender, args);
-            default -> usage(commandSender, "/blacklist <add|remove|list> [wort]");
+            case "reload" -> handleReload(commandSender, args);
+            default -> usage(commandSender, "/blacklist <add|remove|list|reload> [wort]");
         }
         return true;
     }
@@ -52,7 +53,7 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         if (!sender.hasPermission("statustag.admin")) return List.of();
 
         if (args.length == 1) {
-            return List.of("add", "remove", "list").stream()
+            return List.of("add", "remove", "list", "reload").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
         }
@@ -110,6 +111,11 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         );
     }
 
+    private void handleReload(CommandSender sender, String[] args){
+        boolean success = blacklistManager.reload();
+        if(success)msg(sender, "Blacklist reloaded", NamedTextColor.GREEN);
+        else msg(sender, "Fehler beim Reload der Blacklist", NamedTextColor.RED);
+    }
 
     private boolean usage(CommandSender sender, String u) {
         msg(sender, "Usage: " + u, NamedTextColor.YELLOW);
