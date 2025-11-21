@@ -12,4 +12,14 @@ commands:
     description: Clear your tab status
     usage: /statusclear
     aliases:
-      - sc
+      - stc
+  removestrikes:
+    description: Removes strikes of a player or all
+    usage: /removestrikes <player|all>
+    aliases:
+      - rms
+  checkstrikes:
+    description: Zeigt Strikes eines Spielers
+    usage: /checkstrikes <player>
+    aliases:
+      - cs

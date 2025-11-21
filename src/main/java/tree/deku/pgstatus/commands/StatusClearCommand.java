@@ -24,10 +24,10 @@ public class StatusClearCommand implements CommandExecutor {
             return true;
         }
 
-        if (!player.hasPermission("statustag.use")) {
-            player.sendMessage("§cDafür hast du keine Rechte.");
-            return true;
-        }
+//        if (!player.hasPermission("statustag.use")) {
+//            player.sendMessage("§cDafür hast du keine Rechte.");
+//            return true;
+//        }
 
         statusManager.clearPlayerStatus(player.getUniqueId());
         statusManager.resetPlayerListName(player);

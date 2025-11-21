@@ -38,10 +38,10 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (!player.hasPermission("statustag.use")) {
-            player.sendMessage("§cDafür hast du keine Rechte.");
-            return true;
-        }
+//        if (!player.hasPermission("statustag.use")) {
+//            player.sendMessage("§cDafür hast du keine Rechte.");
+//            return true;
+//        }
 
         if (args.length == 0) {
             player.sendMessage("§7Benutzung: §e/" + label + " <text> [color]");
@@ -69,7 +69,7 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if(!blacklistManager.handleStatusAttempt(player,text)){
+        if (!blacklistManager.handleStatusAttempt(player, text)) {
             return true;
         }
 
