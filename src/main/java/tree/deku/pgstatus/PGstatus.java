@@ -3,6 +3,8 @@ package tree.deku.pgstatus;
 import org.bukkit.plugin.java.JavaPlugin;
 import tree.deku.pgstatus.commands.*;
 import tree.deku.pgstatus.listeners.StatusListener;
+import tree.deku.pgstatus.manager.BlacklistManager;
+import tree.deku.pgstatus.manager.StatusManager;
 
 public final class PGstatus extends JavaPlugin {
 

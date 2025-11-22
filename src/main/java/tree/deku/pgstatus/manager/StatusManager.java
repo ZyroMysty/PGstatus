@@ -1,4 +1,4 @@
-package tree.deku.pgstatus;
+package tree.deku.pgstatus.manager;
 
 
 import net.kyori.adventure.text.Component;
@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import tree.deku.pgstatus.PGstatus;
 
 import java.util.*;
 

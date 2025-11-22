@@ -8,7 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import tree.deku.pgstatus.BlacklistManager;
+import tree.deku.pgstatus.manager.BlacklistManager;
 
 import java.util.ArrayList;
 import java.util.List;

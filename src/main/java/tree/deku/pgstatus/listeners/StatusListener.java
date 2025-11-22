@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import tree.deku.pgstatus.StatusManager;
+import tree.deku.pgstatus.manager.StatusManager;
 
 public class StatusListener implements Listener {
     private final StatusManager statusManager;

@@ -1,13 +1,11 @@
 package tree.deku.pgstatus.commands;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import tree.deku.pgstatus.StatusManager;
+import tree.deku.pgstatus.manager.StatusManager;
 
 public class StatusClearCommand implements CommandExecutor {
     private final StatusManager statusManager;

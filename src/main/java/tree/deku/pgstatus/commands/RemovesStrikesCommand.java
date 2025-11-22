@@ -9,7 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
-import tree.deku.pgstatus.BlacklistManager;
+import tree.deku.pgstatus.manager.BlacklistManager;
 
 import java.util.ArrayList;
 import java.util.List;
