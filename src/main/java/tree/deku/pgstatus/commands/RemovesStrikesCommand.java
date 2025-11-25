@@ -26,10 +26,10 @@ public class RemovesStrikesCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
 
-//        if(!sender.hasPermission("statustag.admin")){
-//           sender.sendMessage(Component.text("Keine Rechte für diesen Command", NamedTextColor.RED));
-//           return true;
-//        }
+        if(!sender.hasPermission("status.admin")){
+           sender.sendMessage(Component.text("Keine Rechte für diesen Command", NamedTextColor.RED));
+           return true;
+        }
 
         if (args.length == 0) {
             sender.sendMessage(Component.text("Usage: /removestrikes <player|all>", NamedTextColor.YELLOW));

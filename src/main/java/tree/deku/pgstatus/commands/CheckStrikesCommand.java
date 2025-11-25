@@ -25,10 +25,10 @@ public class CheckStrikesCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
-//        if (!sender.hasPermission("statustag.admin")) {
-//            sender.sendMessage(Component.text("Keine Rechte", NamedTextColor.RED));
-//            return true;
-//        }
+        if (!sender.hasPermission("status.admin")) {
+            sender.sendMessage(Component.text("Keine Rechte", NamedTextColor.RED));
+            return true;
+        }
 
         if (args.length != 1) {
             sender.sendMessage(Component.text("Usage: /checkstrikes <player>", NamedTextColor.YELLOW));
@@ -53,7 +53,7 @@ public class CheckStrikesCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
 
-        if (!sender.hasPermission("statustag.admin")) return List.of();
+        if (!sender.hasPermission("status.admin")) return List.of();
 
         if (args.length == 1) {
             String input = args[0].toLowerCase();

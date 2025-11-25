@@ -6,7 +6,7 @@
 
     <groupId>tree.deku</groupId>
     <artifactId>PGstatus</artifactId>
-    <version>0.12</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>PGstatus</name>

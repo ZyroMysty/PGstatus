@@ -18,11 +18,14 @@ commands:
     usage: /removestrikes <player|all>
     aliases:
       - rms
+    permission: status.admin
   checkstrikes:
     description: Zeigt Strikes eines Spielers
     usage: /checkstrikes <player>
     aliases:
       - cs
+    permission: status.admin
   blacklist:
     description: Verwalte die Blacklist
     usage: /blacklist <add|remove|list|reload> [wort]
+    permission: status.admin

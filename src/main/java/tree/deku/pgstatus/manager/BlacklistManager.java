@@ -31,7 +31,6 @@ public class BlacklistManager {
 
     public BlacklistManager(PGstatus plugin) {
         this.plugin = plugin;
-
         ConfigurationSection section = plugin.getConfig().getConfigurationSection("blacklist");
         if (section == null) {
             enabled = false;
@@ -55,7 +54,6 @@ public class BlacklistManager {
             try {
                 plugin.getDataFolder().mkdirs();
                 blacklistFile.createNewFile();
-
                 blacklistConfig = YamlConfiguration.loadConfiguration(blacklistFile);
                 blacklistConfig.set("words", new ArrayList<>());
                 blacklistConfig.save(blacklistFile);

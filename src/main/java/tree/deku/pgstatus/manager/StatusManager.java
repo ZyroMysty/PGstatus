@@ -63,7 +63,7 @@ public class StatusManager {
     }
 
 
-    private TextColor parseColorFromConfig(String value, TextColor fallback) {
+    public TextColor parseColorFromConfig(String value, TextColor fallback) {
         if (value == null || value.isEmpty()) {
             return fallback;
         }
@@ -195,5 +195,9 @@ public class StatusManager {
 
     public TextColor getPrefixColor() {
         return prefixColor;
+    }
+
+    public String getCurrentStatus(UUID uuid){
+        return statusByPlayer.get(uuid);
     }
 }

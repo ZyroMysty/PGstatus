@@ -38,7 +38,7 @@ public final class PGstatus extends JavaPlugin {
 
         getCommand("statusclear").setExecutor(new StatusClearCommand(statusManager));
 
-        getServer().getPluginManager().registerEvents(new StatusListener(statusManager), this);
+        getServer().getPluginManager().registerEvents(new StatusListener(this,statusManager), this);
 
     }
 

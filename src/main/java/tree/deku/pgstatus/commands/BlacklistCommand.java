@@ -1,6 +1,7 @@
 package tree.deku.pgstatus.commands;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,7 +9,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import tree.deku.pgstatus.manager.BlacklistManager;
+import tree.deku.pgstatus.utils.Pagination;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -37,7 +40,20 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         String sub = args[0].toLowerCase(Locale.ROOT);
 
         switch (sub) {
-            case "list" -> handleList(commandSender);
+            case "list" -> {
+                int page = 1;
+
+                if (args.length >= 2) {
+                    try {
+                        page = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException e) {
+                        commandSender.sendMessage(Component.text("Bitte gib eine gültige Seitenzahl an.", NamedTextColor.RED));
+                        return true;
+                    }
+                }
+
+                handleList(commandSender, page);
+            }
             case "add" -> handleAdd(commandSender, args);
             case "remove" -> handleRemove(commandSender, args);
             case "reload" -> handleReload(commandSender, args);
@@ -68,17 +84,64 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         return List.of();
     }
 
-    private void handleList(CommandSender sender) {
-        Set<String> words = blacklistManager.getWords();
+    private void handleList(CommandSender sender, int page) {
+        List<String> words = new ArrayList<>(blacklistManager.getWords());
+        words.sort(String::compareToIgnoreCase);
 
-        if (words.isEmpty()) {
-            msg(sender, "Blacklist ist leer.", NamedTextColor.GREEN);
-            return;
+        int pageSize = 10;
+
+        int totalPages = Pagination.getTotalPages(words.size(), pageSize);
+
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        List<String> pageWords = Pagination.getPage(words, page, pageSize);
+
+        // Rahmen oben
+        sender.sendMessage(Component.text("§8§m--------------- §6 Blacklist ("+words.size()+") §8§m------------"));
+
+        // Titelzeile
+        sender.sendMessage(
+                Component.text("Seite ", NamedTextColor.GRAY)
+                        .append(Component.text(page + "/" + totalPages, NamedTextColor.GOLD))
+        );
+
+        // Wörter
+        for (String w : pageWords) {
+            sender.sendMessage(
+                    Component.text(" - ", NamedTextColor.DARK_GRAY)
+                            .append(Component.text(w, NamedTextColor.WHITE))
+            );
         }
 
-        msg(sender, "Blacklist:", NamedTextColor.YELLOW);
-        words.forEach(w -> msg(sender, "- " + w, NamedTextColor.GRAY));
+        // Navigation-Buttons
+        Component nav = Component.text("");
+
+        if (page > 1) {
+            // << Previous
+            nav = nav.append(
+                    Component.text("« Vorherige ", NamedTextColor.YELLOW)
+                            .clickEvent(ClickEvent.runCommand("/blacklist list " + (page - 1)))
+                            .hoverEvent(Component.text("Zur Seite " + (page - 1)))
+            );
+        }
+
+        if (page < totalPages) {
+            // Next >>
+            nav = nav.append(
+                    Component.text(" Nächste »", NamedTextColor.YELLOW)
+                            .clickEvent(ClickEvent.runCommand("/blacklist list " + (page + 1)))
+                            .hoverEvent(Component.text("Zur Seite " + (page + 1)))
+            );
+        }
+
+        sender.sendMessage(nav);
+
+        // Rahmen unten
+        sender.sendMessage(Component.text("§8§m----------------------------------------"));
     }
+
+
 
     private void handleAdd(CommandSender sender, String[] args) {
         if (args.length < 2) {
