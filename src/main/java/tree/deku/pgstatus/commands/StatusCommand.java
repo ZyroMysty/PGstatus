@@ -31,38 +31,38 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Keine Konsole.");
+            sender.sendMessage("Command not available through console.");
             return true;
         }
 
-//        if (!player.hasPermission("statustag.use")) {
-//            player.sendMessage("§cDafür hast du keine Rechte.");
-//            return true;
-//        }
-
         if (args.length == 0) {
-            player.sendMessage("§7Benutzung: §e/" + label + " <text> [color]");
+            player.sendMessage(plugin.messages().get("usage-status"));
             return true;
         }
 
         String text;
         TextColor color = null;
 
-        if (args.length == 1) {
-            text = args[0];
-        } else {
-            text = String.join(" ", Arrays.copyOf(args, args.length - 1));
-            String colorArg = args[args.length - 1];
+        String lastArg = args[args.length - 1];
+        TextColor parsedColor = parseColor(lastArg);
 
-            color = parseColor(colorArg);
-            if (color == null) {
-                player.sendMessage("§cUnbekannte Farbe '" + colorArg + "'. Nutze z.B.: red, green, yellow, #ff0000");
-                return true;
-            }
+        if (parsedColor != null && args.length > 1) {
+            // Letztes Argument ist eine gültige Farbe
+            color = parsedColor;
+            text = String.join(" ", Arrays.copyOf(args, args.length - 1));
+        } else {
+            // Keine Farbe oder ungültiges Argument → alles ist Text
+            text = String.join(" ", args);
+        }
+
+        text = text.trim();
+        if (text.isEmpty()) {
+            player.sendMessage(plugin.messages().get("status-empty"));
+            return true;
         }
 
         if (text.length() > 16) {
-            player.sendMessage("§cDer Status ist zu lang (max. 16 Zeichen).");
+            player.sendMessage(plugin.messages().get("status-too-long"));
             return true;
         }
 
@@ -73,17 +73,15 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
         statusManager.savePlayerStatus(player.getUniqueId(), text, color);
         statusManager.applyStatus(player);
 
-        String prefixText = statusManager.getPrefixText();
-        TextColor prefixColor = statusManager.getPrefixColor();
         TextColor effectiveColor = statusManager.getColorForStatus(text);
 
-        Component msg = Component.text(prefixText + " ", prefixColor)
-                .append(Component.text("Status gesetzt auf "))
-                .append(Component.text("[", NamedTextColor.GRAY))
-                .append(Component.text(text, effectiveColor))
-                .append(Component.text("]", NamedTextColor.GRAY));
-
-        player.sendMessage(msg);
+        player.sendMessage(
+                plugin.messages().formatStatusSet(
+                        statusManager.getPrefixText(),
+                        text,
+                        effectiveColor
+                )
+        );
 
 
         return true;
@@ -127,7 +125,7 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
             String last = args[args.length - 1].toLowerCase(Locale.ROOT);
 
             List<String> baseColors = Arrays.asList(
-                    "red", "green", "blue", "yellow", "gold", "gray", "white", "black", "aqua", "dark_red"
+                    "red", "green", "blue", "yellow", "gold", "gray", "white", "black", "aqua", "dark_red", "dark_green", "dark_gray", "dark_blue", "dark_aqua", "dark_purple", "light_purple"
             );
 
             return baseColors.stream()

@@ -8,44 +8,57 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import tree.deku.pgstatus.PGstatus;
 import tree.deku.pgstatus.manager.BlacklistManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class CheckStrikesCommand implements CommandExecutor, TabCompleter {
-
+    private final PGstatus plugin;
     private final BlacklistManager blacklistManager;
 
-    public CheckStrikesCommand(BlacklistManager blacklistManager) {
+    public CheckStrikesCommand(BlacklistManager blacklistManager, PGstatus plugin) {
         this.blacklistManager = blacklistManager;
+        this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         if (!sender.hasPermission("status.admin")) {
-            sender.sendMessage(Component.text("Keine Rechte", NamedTextColor.RED));
+            sender.sendMessage(plugin.messages().get("no-permission"));
             return true;
         }
 
         if (args.length != 1) {
-            sender.sendMessage(Component.text("Usage: /checkstrikes <player>", NamedTextColor.YELLOW));
+            sender.sendMessage(plugin.messages().get("checkstrikes-usage"));
             return true;
         }
 
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
         UUID uuid = target.getUniqueId();
+        String name = target.getName() != null ? target.getName() : args[0];
 
         int strikes = blacklistManager.getStrikeCount(uuid);
 
         if (strikes == 0) {
-            sender.sendMessage(Component.text((target.getName() != null ? target.getName() : args[0]) + " hat keine Strikes.", NamedTextColor.GREEN));
+            sender.sendMessage(plugin.messages().get("checkstrikes-none",
+                    Map.of("player", name)));
             return true;
         }
 
-        sender.sendMessage(Component.text((target.getName() != null ? target.getName() : args[0]) + " hat aktuell " + strikes + " Strike" + (strikes == 1 ? "" : "s") + ".", NamedTextColor.YELLOW));
+        String plural = strikes == 1 ? "" : "s";
+
+        sender.sendMessage(plugin.messages().get("checkstrikes-some",
+                Map.of(
+                        "player", name,
+                        "count", String.valueOf(strikes),
+                        "plural", plural
+                )));
+
         return true;
 
     }

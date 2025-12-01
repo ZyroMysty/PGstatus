@@ -8,32 +8,32 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
+import tree.deku.pgstatus.PGstatus;
 import tree.deku.pgstatus.manager.BlacklistManager;
 import tree.deku.pgstatus.utils.Pagination;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 public class BlacklistCommand implements CommandExecutor, TabCompleter {
 
+    private final PGstatus plugin;
     private final BlacklistManager blacklistManager;
 
-    public BlacklistCommand(BlacklistManager blacklistManager){
+    public BlacklistCommand(BlacklistManager blacklistManager, PGstatus plugin){
         this.blacklistManager = blacklistManager;
+        this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
 
         if(!commandSender.hasPermission("status.admin")){
-            commandSender.sendMessage(Component.text("Keine Rechte", NamedTextColor.RED));
+            commandSender.sendMessage(plugin.messages().get("no-permission"));
             return true;
         }
 
         if(args.length == 0){
-            commandSender.sendMessage(Component.text("Usage: /blacklist <add|remove|list|reload> [wort]", NamedTextColor.YELLOW));
+            commandSender.sendMessage(plugin.messages().get("blacklist-usage"));
             return true;
         }
 
@@ -47,7 +47,7 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
                     try {
                         page = Integer.parseInt(args[1]);
                     } catch (NumberFormatException e) {
-                        commandSender.sendMessage(Component.text("Bitte gib eine gültige Seitenzahl an.", NamedTextColor.RED));
+                        commandSender.sendMessage(plugin.messages().get("blacklist-invalid-page"));
                         return true;
                     }
                 }
@@ -57,7 +57,7 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
             case "add" -> handleAdd(commandSender, args);
             case "remove" -> handleRemove(commandSender, args);
             case "reload" -> handleReload(commandSender, args);
-            default -> usage(commandSender, "/blacklist <add|remove|list|reload> [wort]");
+            default -> commandSender.sendMessage(plugin.messages().get("blacklist-usage"));
         }
         return true;
     }
@@ -98,13 +98,19 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         List<String> pageWords = Pagination.getPage(words, page, pageSize);
 
         // Rahmen oben
-        sender.sendMessage(Component.text("§8§m--------------- §6 Blacklist ("+words.size()+") §8§m------------"));
+        sender.sendMessage(
+                plugin.messages().get("blacklist-header", Map.of("count", String.valueOf(words.size())))
+        );
+
 
         // Titelzeile
         sender.sendMessage(
-                Component.text("Seite ", NamedTextColor.GRAY)
-                        .append(Component.text(page + "/" + totalPages, NamedTextColor.GOLD))
+                plugin.messages().get("blacklist-page", Map.of(
+                        "page", String.valueOf(page),
+                        "pages", String.valueOf(totalPages)
+                ))
         );
+
 
         // Wörter
         for (String w : pageWords) {
@@ -120,25 +126,28 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         if (page > 1) {
             // << Previous
             nav = nav.append(
-                    Component.text("« Vorherige ", NamedTextColor.YELLOW)
+                    plugin.messages().get("blacklist-prev")
                             .clickEvent(ClickEvent.runCommand("/blacklist list " + (page - 1)))
                             .hoverEvent(Component.text("Zur Seite " + (page - 1)))
             );
+
         }
 
         if (page < totalPages) {
             // Next >>
             nav = nav.append(
-                    Component.text(" Nächste »", NamedTextColor.YELLOW)
+                    plugin.messages().get("blacklist-next")
                             .clickEvent(ClickEvent.runCommand("/blacklist list " + (page + 1)))
                             .hoverEvent(Component.text("Zur Seite " + (page + 1)))
             );
+
         }
 
         sender.sendMessage(nav);
 
         // Rahmen unten
-        sender.sendMessage(Component.text("§8§m----------------------------------------"));
+        sender.sendMessage(plugin.messages().get("blacklist-footer"));
+
     }
 
 
@@ -152,31 +161,37 @@ public class BlacklistCommand implements CommandExecutor, TabCompleter {
         String word = args[1];
         boolean added = blacklistManager.addWord(word);
 
-        msg(sender,
-                added ? "Hinzugefügt: " + word : "Wort ist bereits in der Blacklist.",
-                added ? NamedTextColor.GREEN : NamedTextColor.RED
-        );
+        if (added)
+            sender.sendMessage(plugin.messages().get("blacklist-add-success", Map.of("word", word)));
+        else
+            sender.sendMessage(plugin.messages().get("blacklist-add-fail"));
+
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            usage(sender, "/blacklist remove <wort>");
+            sender.sendMessage(plugin.messages().get("blacklist-usage-remove"));
             return;
         }
 
         String word = args[1];
         boolean removed = blacklistManager.removeWord(word);
 
-        msg(sender,
-                removed ? "Entfernt: " + word : "Wort ist nicht in der Blacklist.",
-                removed ? NamedTextColor.GREEN : NamedTextColor.RED
-        );
+        if (removed) {
+            sender.sendMessage(plugin.messages().get("blacklist-remove-success",
+                    Map.of("word", word)
+            ));
+        } else {
+            sender.sendMessage(plugin.messages().get("blacklist-remove-fail",
+                    Map.of("word", word)
+            ));
+        }
     }
 
     private void handleReload(CommandSender sender, String[] args){
         boolean success = blacklistManager.reload();
-        if(success)msg(sender, "Blacklist reloaded", NamedTextColor.GREEN);
-        else msg(sender, "Fehler beim Reload der Blacklist", NamedTextColor.RED);
+        sender.sendMessage(plugin.messages().get(success ? "blacklist-reload-success" : "blacklist-reload-fail"));
+
     }
 
     private boolean usage(CommandSender sender, String u) {

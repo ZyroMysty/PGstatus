@@ -133,27 +133,32 @@ public class BlacklistManager {
         saveStrikesToConfig();
 
         if (current < maxStrikes) {
-            player.sendMessage(Component.text("Dieser Status ist nicht erlaubt. Verwarnung " + current + "/" + maxStrikes,
-                    NamedTextColor.RED));
+            player.sendMessage(
+                    plugin.messages().get("blacklist-warning", Map.of(
+                            "current", String.valueOf(current),
+                            "max", String.valueOf(maxStrikes)
+                    ))
+            );
             return false;
         }
 
         if (current == maxStrikes) {
-            Bukkit.getScheduler().runTask(plugin, () -> player.kick(Component.text("Zu viele verbotene Status-Versuche.", NamedTextColor.RED)));
+            Bukkit.getScheduler().runTask(plugin, () ->
+                    player.kick(plugin.messages().get("blacklist-kick"))
+            );
             return false;
         }
 
         Bukkit.getBanList(BanList.Type.NAME).addBan(
                 player.getName(),
-                "Wiederholte Nutzung verbotener Status-Texte",
+                plugin.messages().get("blacklist-ban-reason").toString(),
                 null,
                 plugin.getName()
         );
 
         Bukkit.getScheduler().runTask(plugin, () ->
-                player.kick(Component.text("Du wurdest gebannt (Blacklist-Verstoß).", NamedTextColor.RED))
+                player.kick(plugin.messages().get("blacklist-ban-kick"))
         );
-
         return false;
     }
 
@@ -176,41 +181,41 @@ public class BlacklistManager {
     }
 
 
-    public void saveWords(){
+    public void saveWords() {
         blacklistConfig.set("words", new ArrayList<>(blacklistWords));
-        try{
+        try {
             blacklistConfig.save(blacklistFile);
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public boolean addWord(String word){
+    public boolean addWord(String word) {
         String w = word.toLowerCase(Locale.ROOT);
 
-        if(blacklistWords.contains(w))return false;
+        if (blacklistWords.contains(w)) return false;
 
         blacklistWords.add(w);
         saveWords();
         return true;
     }
 
-    public boolean removeWord(String word){
+    public boolean removeWord(String word) {
         String w = word.toLowerCase(Locale.ROOT);
 
-        if(!blacklistWords.contains(w)) return false;
+        if (!blacklistWords.contains(w)) return false;
 
         blacklistWords.remove(w);
         saveWords();
         return true;
     }
 
-    public Set<String> getWords(){
+    public Set<String> getWords() {
         return Collections.unmodifiableSet(blacklistWords);
     }
 
-    public boolean reload(){
-        try{
+    public boolean reload() {
+        try {
             blacklistConfig = YamlConfiguration.loadConfiguration(blacklistFile);
 
             List<String> words = blacklistConfig.getStringList("words");
@@ -222,7 +227,7 @@ public class BlacklistManager {
                             .toList()
             );
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

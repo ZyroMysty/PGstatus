@@ -9,30 +9,34 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
+import tree.deku.pgstatus.PGstatus;
 import tree.deku.pgstatus.manager.BlacklistManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class RemovesStrikesCommand implements CommandExecutor, TabCompleter {
 
     private final BlacklistManager blacklistManager;
+    private final PGstatus plugin;
 
-    public RemovesStrikesCommand(BlacklistManager blacklistManager) {
+    public RemovesStrikesCommand(BlacklistManager blacklistManager, PGstatus plugin) {
         this.blacklistManager = blacklistManager;
+        this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
 
         if(!sender.hasPermission("status.admin")){
-           sender.sendMessage(Component.text("Keine Rechte für diesen Command", NamedTextColor.RED));
+            sender.sendMessage(plugin.messages().get("no-permission"));
            return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(Component.text("Usage: /removestrikes <player|all>", NamedTextColor.YELLOW));
+            sender.sendMessage(plugin.messages().get("removestrikes-usage"));
             return true;
         }
 
@@ -40,7 +44,7 @@ public class RemovesStrikesCommand implements CommandExecutor, TabCompleter {
 
         if (targetArg.equalsIgnoreCase("all")) {
             blacklistManager.clearAllStrikes();
-            sender.sendMessage(Component.text("Alle Strikes wurden gelöscht", NamedTextColor.GREEN));
+            sender.sendMessage(plugin.messages().get("removestrikes-all-cleared"));
             return true;
         }
 
@@ -48,12 +52,13 @@ public class RemovesStrikesCommand implements CommandExecutor, TabCompleter {
         UUID uuid = target.getUniqueId();
 
         if (!target.hasPlayedBefore() && !target.isOnline()) {
-            sender.sendMessage(Component.text("Diesen Spieler gibt es nicht.", NamedTextColor.RED));
+            sender.sendMessage(plugin.messages().get("removestrikes-player-not-found"));
             return true;
         }
 
         if (!blacklistManager.hasStrikes(uuid)) {
-            sender.sendMessage(Component.text("Dieser Spieler hat keine Strikes.", NamedTextColor.YELLOW));
+            sender.sendMessage(plugin.messages().get("removestrikes-none",
+                    Map.of("player", target.getName() != null ? target.getName() : targetArg)));
             return true;
         }
 
@@ -61,16 +66,17 @@ public class RemovesStrikesCommand implements CommandExecutor, TabCompleter {
 
         String name = target.getName() != null ? target.getName() : targetArg;
 
-        sender.sendMessage(Component.text("Alle Strikes von " + name + " gelöscht.", NamedTextColor.GREEN));
+        sender.sendMessage(plugin.messages().get("removestrikes-cleared-player",
+                Map.of("player", name)));
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
 
-//        if (!sender.hasPermission("statustag.admin")) {
-//            return List.of();
-//        }
+        if (!sender.hasPermission("statustag.admin")) {
+            return List.of();
+        }
 
         if (args.length == 1) {
             String input = args[0].toLowerCase();

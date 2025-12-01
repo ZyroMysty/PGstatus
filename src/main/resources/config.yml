@@ -3,9 +3,183 @@ default-prefix:
   text: [PG]
   color: light_purple
 messages:
+  no-permission:
+  prefix: true
+  text: "Dafür hast du keine Rechte."
+  color: red
+
+#STATUS MESSAGE CONFIGURATION
   default-currentStatus:
-    text: 'Dein aktueller Status:'
+    prefix: true
+    text: "Dein aktueller Status:"
     color: light_purple
+
+  usage-status:
+    prefix: false
+    text: "Benutzung: /status <text> [color]"
+    color: yellow
+
+  status-too-long:
+    prefix: true
+    text: "Der Status ist zu lang (max. 16 Zeichen)."
+    color: red
+
+  status-empty:
+    prefix: true
+    text: "Du musst einen Status eingeben."
+    color: red
+
+  status-set:
+    prefix: true
+    text: "Status gesetzt auf:"
+    color: white
+
+  status-cleared:
+    prefix: true
+    text: "Dein Status wurde entfernt."
+    color: light_purple
+
+#BLACKLIST MESSAGE CONFIGURATION
+  blacklist-usage:
+    prefix: false
+    text: "Usage: /blacklist <add|remove|list|reload> [wort]"
+    color: yellow
+
+  blacklist-invalid-page:
+    prefix: true
+    text: "Bitte gib eine gültige Seitenzahl an."
+    color: red
+
+  blacklist-header:
+    prefix: false
+    text: "---- Blacklist (%count%) ----"
+    color: gold
+
+  blacklist-footer:
+    prefix: false
+    text: "-----------------------------"
+    color: dark_gray
+
+  blacklist-page:
+    prefix: false
+    text: "Seite %page%/%pages%"
+    color: yellow
+
+  blacklist-prev:
+    prefix: false
+    text: "« Vorherige"
+    color: yellow
+
+  blacklist-next:
+    prefix: false
+    text: "Nächste »"
+    color: yellow
+
+  blacklist-add-success:
+    prefix: true
+    text: "Hinzugefügt: %word%"
+    color: green
+
+  blacklist-add-fail:
+    prefix: true
+    text: "Das Wort ist bereits in der Blacklist."
+    color: red
+
+  blacklist-reload-success:
+    prefix: true
+    text: "Blacklist wurde neu geladen."
+    color: green
+
+  blacklist-reload-fail:
+    prefix: true
+    text: "Fehler beim Reload der Blacklist."
+    color: red
+
+  blacklist-remove-success:
+    prefix: true
+    text: "Entfernt: %word%"
+    color: green
+
+  blacklist-remove-fail:
+    prefix: true
+    text: "Das Wort '%word%' ist nicht in der Blacklist."
+    color: red
+
+  blacklist-usage-remove:
+    prefix: false
+    text: "Usage: /blacklist remove <wort>"
+    color: yellow
+
+  blacklist-warning:
+    prefix: true
+    text: "Dieser Status ist nicht erlaubt. Verwarnung %current%/%max%"
+    color: red
+
+  blacklist-kick:
+    prefix: false
+    text: "Zu viele verbotene Status-Versuche."
+    color: red
+
+  blacklist-ban-reason:
+    prefix: false
+    text: "Wiederholte Nutzung verbotener Status-Texte"
+    color: dark_red
+
+  blacklist-ban-kick:
+    prefix: false
+    text: "Du wurdest gebannt (Blacklist-Verstoß)."
+    color: dark_red
+
+#STRIKE MESSAGE CONFIGURATION
+
+  removestrikes-usage:
+    prefix: false
+    text: "Usage: /removestrikes <player|all>"
+    color: yellow
+
+  removestrikes-all-cleared:
+    prefix: true
+    text: "Alle Strikes wurden gelöscht."
+    color: green
+
+  removestrikes-player-not-found:
+    prefix: true
+    text: "Diesen Spieler gibt es nicht."
+    color: red
+
+  removestrikes-none:
+    prefix: true
+    text: "%player% hat keine Strikes."
+    color: yellow
+
+  removestrikes-cleared-player:
+    prefix: true
+    text: "Alle Strikes von %player% wurden gelöscht."
+    color: green
+
+
+  checkstrikes-usage:
+    prefix: false
+    text: "Usage: /checkstrikes <player>"
+    color: yellow
+
+  checkstrikes-none:
+    prefix: true
+    text: "%player% hat keine Strikes."
+    color: green
+
+  #plural = s (this cannot be changed)
+  checkstrikes-some:
+    prefix: true
+    text: "%player% hat aktuell %count% Strike%plural%."
+    color: yellow
+
+#USED FOR SET STATUS COMMAND
+status-bracket-color: gray
+status-set-open: "["
+status-set-close: "]"
+
+
 blacklist:
   enabled: true
   max-strikes: 3

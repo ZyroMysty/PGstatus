@@ -5,35 +5,31 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import tree.deku.pgstatus.PGstatus;
 import tree.deku.pgstatus.manager.StatusManager;
 
 public class StatusClearCommand implements CommandExecutor {
     private final StatusManager statusManager;
+    private final PGstatus plugin;
 
-    public StatusClearCommand(StatusManager statusManager) {
+    public StatusClearCommand(StatusManager statusManager, PGstatus plugin) {
         this.statusManager = statusManager;
+        this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Nur Ingame, Bro.");
+            sender.sendMessage("Not Available through console");
             return true;
         }
-
-//        if (!player.hasPermission("statustag.use")) {
-//            player.sendMessage("§cDafür hast du keine Rechte.");
-//            return true;
-//        }
 
         statusManager.clearPlayerStatus(player.getUniqueId());
         statusManager.resetPlayerListName(player);
 
-        Component msg = Component.text(statusManager.getPrefixText() + " ", statusManager.getPrefixColor())
-                .append(Component.text("Dein Status wurde entfernt."));
+        player.sendMessage(plugin.messages().get("status-cleared"));
 
-        player.sendMessage(msg);
 
         return true;
     }
