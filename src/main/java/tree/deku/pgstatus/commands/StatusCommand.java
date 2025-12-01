@@ -31,7 +31,7 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Nur Ingame, Bro.");
+            sender.sendMessage("Keine Konsole.");
             return true;
         }
 
