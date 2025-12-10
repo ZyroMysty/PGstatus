@@ -232,4 +232,9 @@ public class BlacklistManager {
             return false;
         }
     }
+
+    public Map<UUID, Integer> getAllStrikeEntries() {
+        return Collections.unmodifiableMap(strikes);
+    }
+
 }

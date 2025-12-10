@@ -99,4 +99,35 @@ public class MessageManager {
                 .append(Component.text(status, statusColor))
                 .append(Component.text(close, bracketColor));
     }
+
+    // ------------------------------------------------------------
+    // GET RAW STRING (no color, no prefix, no formatting)
+    // ------------------------------------------------------------
+    public String raw(String key, String def) {
+        String full = "messages." + key;
+        return plugin.getConfig().getString(full, def);
+    }
+
+    // ------------------------------------------------------------
+    // GET COLOR FROM CONFIG (fallback to provided one)
+    // ------------------------------------------------------------
+    public NamedTextColor color(String key, NamedTextColor def) {
+        String full = "messages." + key;
+        String value = plugin.getConfig().getString(full);
+        if (value == null) return def;
+
+        TextColor parsed = parseColor(value);
+        if (parsed instanceof NamedTextColor ntc) return ntc;
+
+        return def;
+    }
+
+    // ------------------------------------------------------------
+    // CHECK IF MESSAGE EXISTS
+    // ------------------------------------------------------------
+    public boolean exists(String key) {
+        return plugin.getConfig().contains("messages." + key);
+    }
+
+
 }
