@@ -66,6 +66,25 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        // ---- protected statuses check ----
+        String normalized = text.toUpperCase(Locale.ROOT);
+
+        List<String> protectedList = plugin.getConfig().getStringList("protected-statuses");
+        boolean isProtected = protectedList.stream()
+                .map(s -> s.toUpperCase(Locale.ROOT))
+                .anyMatch(s -> s.equals(normalized));
+
+        if (isProtected) {
+            String permPrefix = plugin.getConfig().getString("protected-status-permission-prefix", "status.status.");
+            String perm = permPrefix + normalized; // z.B. status.status.DEV
+
+            if (!player.hasPermission(perm)) {
+                player.sendMessage(plugin.messages().get("status-protected-deny",
+                        Map.of("status", normalized)));
+                return true;
+            }
+        }
+
         if (!blacklistManager.handleStatusAttempt(player, text)) {
             return true;
         }
@@ -118,6 +137,7 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
 
             return allStatuses.stream()
                     .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(prefix))
+                    .filter(s -> canUseStatus((Player) sender, s))
                     .toList();
         }
 
@@ -135,4 +155,19 @@ public class StatusCommand implements CommandExecutor, TabCompleter {
 
         return Collections.emptyList();
     }
+
+    private boolean canUseStatus(Player player, String statusText) {
+        String normalized = statusText.toUpperCase(Locale.ROOT);
+
+        List<String> protectedList = plugin.getConfig().getStringList("protected-statuses");
+        boolean isProtected = protectedList.stream()
+                .map(s -> s.toUpperCase(Locale.ROOT))
+                .anyMatch(s -> s.equals(normalized));
+
+        if (!isProtected) return true;
+
+        String permPrefix = plugin.getConfig().getString("protected-status-permission-prefix", "status.status.");
+        return player.hasPermission(permPrefix + normalized);
+    }
+
 }

@@ -214,11 +214,20 @@ messages:
 
   checkstrikes-list-entry.player-color: gold
 
+  status-protected-deny:
+    prefix: true
+    text: "Du darfst den Status %status% nicht verwenden."
+    color: red
+
 #USED FOR SET STATUS COMMAND
 status-bracket-color: gray
 status-set-open: "["
 status-set-close: "]"
 
+protected-status-permission-prefix: "status.status."
+protected-statuses:
+  - DEV
+  - ADMIN
 
 blacklist:
   enabled: true
